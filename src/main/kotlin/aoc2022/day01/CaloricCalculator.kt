@@ -10,6 +10,6 @@ object CaloricCalculator {
 
     private fun caloriesPerElf(input: String): List<Int> {
         return input.split("\n\n")
-            .map { it.split("\n").sumOf { s -> s.toInt() } }
+            .map { it.split("\n").sumOf(String::toInt) }
     }
 }
