@@ -6,6 +6,8 @@ import io.kotest.matchers.collections.shouldContainInOrder
 class Input private constructor(private val contents: String) {
 
     fun asList() = contents.split("\n")
+    
+    fun asString() = contents
 
     companion object {
         fun fromResource(fileName: String): Input {
