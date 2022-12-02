@@ -6,7 +6,7 @@ import io.kotest.matchers.collections.shouldContainInOrder
 class Input private constructor(private val contents: String) {
 
     fun asList() = contents.split("\n")
-    
+
     fun asString() = contents
 
     companion object {
@@ -18,6 +18,8 @@ class Input private constructor(private val contents: String) {
         fun fromString(value: String): Input = Input(value)
     }
 }
+
+fun String.asInput(): Input = Input.fromString(this)
 
 class InputSpec : StringSpec({
 
