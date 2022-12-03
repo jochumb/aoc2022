@@ -1,6 +1,6 @@
 package aoc2022.day01
 
-object CaloricCalculator {
+object CalorieCounting {
 
     fun maxCalories(input: String): Int =
         caloriesPerElf(input).max()
