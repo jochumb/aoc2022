@@ -9,8 +9,8 @@ object CampCleanup {
         input.map(::toRangePair).count(::hasPartialOverlap)
 
     private fun toRangePair(assignmentPair: String): Pair<IntRange, IntRange> {
-        val result = Regex("(\\d+)-(\\d+),(\\d+)-(\\d+)").find(assignmentPair)!!
-        val (s1, e1, s2, e2) = result.groupValues.drop(1).map(String::toInt)
+        val digits = Regex("\\d+").findAll(assignmentPair).toList()
+        val (s1, e1, s2, e2) = digits.map { it.value }.map { it.toInt() }
         return s1..e1 to s2..e2
     }
 
