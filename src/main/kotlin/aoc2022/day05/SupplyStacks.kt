@@ -43,7 +43,8 @@ object SupplyStacks {
 
     private fun parseStacks(input: List<String>): List<Stack<Char>> {
         val stripped = input.map { it.toList() }.map { chars ->
-            chars.filterIndexed { i, _ -> i % 2 != 0 }.filterIndexed { i, _ -> i % 2 == 0 }
+            // Every 4th char starting at index 1
+            chars.filterIndexed { i, _ -> i % 4 == 1 }
         }
 
         return IntRange(0, stripped.maxOf { it.count() } - 1).map { i ->
