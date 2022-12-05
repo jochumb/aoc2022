@@ -4,14 +4,14 @@ object SupplyStacks {
 
     fun moveCratesOneByOne(input: List<String>): String {
         val position = parsePosition(input)
-        val stacks: List<Stack<Char>> = position.steps.fold(position.stacks, ::executeStepOneByOne)
-        return stacks.map { it.first() }.joinToString("")
+        return position.steps.fold(position.stacks, ::executeStepOneByOne)
+            .map { it.first() }.joinToString("")
     }
 
     fun moveCratesAllAtOnce(input: List<String>): String {
         val position = parsePosition(input)
-        val stacks: List<Stack<Char>> = position.steps.fold(position.stacks, ::executeStep)
-        return stacks.map { it.first() }.joinToString("")
+        return position.steps.fold(position.stacks, ::executeStep)
+            .map { it.first() }.joinToString("")
     }
 
     private fun executeStepOneByOne(stacks: List<Stack<Char>>, step: Step): List<Stack<Char>> {
@@ -21,14 +21,12 @@ object SupplyStacks {
     }
 
     private fun executeStep(stacks: List<Stack<Char>>, step: Step): List<Stack<Char>> {
-        val crates: List<Char> = stacks[step.from].take(step.count)
-        val newFromStack = stacks[step.from].drop(step.count)
-        val newToStack = crates + stacks[step.to]
+        val (crates, remainingStack) = stacks[step.from].pop(step.count)
 
         return stacks.mapIndexed { index, stack ->
             when (index) {
-                step.from -> newFromStack
-                step.to   -> newToStack
+                step.from -> remainingStack
+                step.to   -> crates + stack
                 else      -> stack
             }
         }
@@ -60,8 +58,10 @@ object SupplyStacks {
 
 }
 
-data class Position(val stacks: List<Stack<Char>>, val steps: List<Step>)
+typealias Stack<T> = List<T>
 
+data class Position(val stacks: List<Stack<Char>>, val steps: List<Step>)
 data class Step(val count: Int, val from: Int, val to: Int)
 
-typealias Stack<T> = List<T>
+private fun <T> Stack<T>.pop(count: Int): Pair<Stack<T>, Stack<T>> =
+    this.take(count) to this.drop(count)
