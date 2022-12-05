@@ -17,8 +17,8 @@ object RucksackReorganization {
         strings.map(String::toSet).reduce { acc, chars -> chars intersect acc }.first()
 
     private fun toPriority(item: Char): Int =
-        when (item.isLowerCase()) {
-            true -> item.code - 96
-            false -> item.code - 38
+        when {
+            item.isLowerCase() -> item.code - 'a'.code + 1
+            else               -> item.code - 'A'.code + 27
         }
 }

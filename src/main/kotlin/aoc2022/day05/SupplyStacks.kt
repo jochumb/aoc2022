@@ -28,8 +28,8 @@ object SupplyStacks {
         return stacks.mapIndexed { index, stack ->
             when (index) {
                 step.from -> newFromStack
-                step.to -> newToStack
-                else -> stack
+                step.to   -> newToStack
+                else      -> stack
             }
         }
     }

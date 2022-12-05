@@ -26,16 +26,16 @@ data class Round(val shape: Shape, val outcome: Outcome) {
     companion object {
         fun byShapes(opponent: Shape, me: Shape): Round =
             when (me) {
-                opponent -> Round(me, Outcome.DRAW)
+                opponent         -> Round(me, Outcome.DRAW)
                 opponent.beats() -> Round(me, Outcome.LOSE)
-                else -> Round(me, Outcome.WIN)
+                else             -> Round(me, Outcome.WIN)
             }
 
         fun byOutcome(opponent: Shape, outcome: Outcome): Round =
             when (outcome) {
                 Outcome.LOSE -> Round(opponent.beats(), outcome)
                 Outcome.DRAW -> Round(opponent, outcome)
-                Outcome.WIN -> Round(opponent.beats().beats(), outcome)
+                Outcome.WIN  -> Round(opponent.beats().beats(), outcome)
             }
     }
 }
@@ -49,15 +49,15 @@ enum class Shape(val points: Int) {
                 'A', 'X' -> ROCK
                 'B', 'Y' -> PAPER
                 'C', 'Z' -> SCISSORS
-                else -> throw IllegalArgumentException()
+                else     -> throw IllegalArgumentException()
             }
     }
 }
 
 fun Shape.beats(): Shape =
     when (this) {
-        Shape.ROCK -> Shape.SCISSORS
-        Shape.PAPER -> Shape.ROCK
+        Shape.ROCK     -> Shape.SCISSORS
+        Shape.PAPER    -> Shape.ROCK
         Shape.SCISSORS -> Shape.PAPER
     }
 
@@ -68,9 +68,9 @@ enum class Outcome(val points: Int) {
     companion object {
         fun from(input: Char): Outcome =
             when (input) {
-                'X' -> LOSE
-                'Y' -> DRAW
-                'Z' -> WIN
+                'X'  -> LOSE
+                'Y'  -> DRAW
+                'Z'  -> WIN
                 else -> throw IllegalArgumentException()
             }
     }
