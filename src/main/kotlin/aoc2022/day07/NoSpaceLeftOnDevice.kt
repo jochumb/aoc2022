@@ -1,4 +1,4 @@
-package aoc2022.day08
+package aoc2022.day07
 
 object NoSpaceLeftOnDevice {
 

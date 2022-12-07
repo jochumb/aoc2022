@@ -1,6 +1,6 @@
 package aoc2022
 
-import aoc2022.day08.NoSpaceLeftOnDevice
+import aoc2022.day07.NoSpaceLeftOnDevice
 import aoc2022.utils.Input
 import aoc2022.utils.asInput
 import io.kotest.core.spec.style.DescribeSpec
