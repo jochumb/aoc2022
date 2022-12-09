@@ -80,7 +80,7 @@ object RopeBridge {
         }
 
         fun follow(other: Point): Tail {
-            if (other.isConnected(knot)) return this
+            if (knot.isConnected(other)) return this
 
             val nextPoint = knot.follow(other)
             return when (next) {
