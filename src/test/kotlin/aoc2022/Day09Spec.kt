@@ -53,34 +53,3 @@ class Day09Spec : DescribeSpec({
         }
     }
 })
-
-/*
-[Point(x=0, y=0)
- Point(x=0, y=0)
- Point(x=1, y=0)
- Point(x=2, y=0)
- Point(x=3, y=0)
- Point(x=3, y=0)
- Point(x=4, y=1)
- Point(x=4, y=2)
- Point(x=4, y=3)
- Point(x=4, y=3)
- Point(x=3, y=4)
- Point(x=2, y=4)
- Point(x=2, y=4)
- Point(x=2, y=4)
- Point(x=2, y=4)
- Point(x=3, y=4)
- Point(x=4, y=4)
- Point(x=5, y=3)
- Point(x=5, y=3)
- Point(x=4, y=3)
- Point(x=3, y=3)
- Point(x=2, y=3)
- Point(x=1, y=3)
- Point(x=1, y=3)
- Point(x=1, y=3)]
-
-
-
- */
