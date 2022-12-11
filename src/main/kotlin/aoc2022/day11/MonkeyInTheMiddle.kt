@@ -16,37 +16,37 @@ object MonkeyInTheMiddle {
 
     private fun doNRounds(n: Int, monkeys: List<Monkey>, reduceWorryLevel: (Long) -> Long): List<Int> =
         (0 until n).fold(Pair(monkeys, List(monkeys.count()) { 0 })) { acc, _ ->
-            doRound(acc.first, acc.second, reduceWorryLevel)
+            doRound(0, acc.first, acc.second, reduceWorryLevel)
         }.second
 
     private tailrec fun doRound(
+        monkeyId: Int,
         monkeys: List<Monkey>,
         itemsProcessed: List<Int>,
-        reduceWorryLevel: (Long) -> Long,
-        monkeyId: Int = 0
+        reduceWorryLevel: (Long) -> Long
     ): Pair<List<Monkey>, List<Int>> =
         when {
             monkeyId == monkeys.size          -> Pair(monkeys, itemsProcessed)
-            monkeys[monkeyId].items.isEmpty() -> doRound(monkeys, itemsProcessed, reduceWorryLevel, monkeyId + 1)
+            monkeys[monkeyId].items.isEmpty() -> doRound(monkeyId + 1, monkeys, itemsProcessed, reduceWorryLevel)
             else                              -> doRound(
+                monkeyId,
                 doTurn(monkeyId, monkeys, reduceWorryLevel),
                 itemsProcessed.increment(monkeyId),
-                reduceWorryLevel,
-                monkeyId
+                reduceWorryLevel
             )
         }
 
     private fun doTurn(monkeyId: Int, monkeys: List<Monkey>, reduceWorryLevel: (Long) -> Long): List<Monkey> {
         val monkey = monkeys[monkeyId]
-        val level: Long = reduceWorryLevel(monkey.operation(monkey.items.first()))
-        val nextId = when (level % monkey.test.divisibleBy == 0L) {
+        val item = monkey.items.first().let(monkey.operation).let(reduceWorryLevel)
+        val nextId = when (item % monkey.test.divisibleBy == 0L) {
             true  -> monkey.test.ifTrue
             false -> monkey.test.ifFalse
         }
         return monkeys.mapIndexed { id, it ->
             when (id) {
                 monkeyId -> it.copy(items = it.items.drop(1))
-                nextId   -> it.copy(items = it.items + level)
+                nextId   -> it.copy(items = it.items + item)
                 else     -> it
             }
         }
