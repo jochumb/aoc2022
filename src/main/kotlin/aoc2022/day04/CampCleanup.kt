@@ -23,7 +23,7 @@ object CampCleanup {
 }
 
 private fun <T> Pair<Iterable<T>, Iterable<T>>.intersection(): Set<T> =
-    this.first.intersect(this.second.toSet())
+    first.intersect(second.toSet())
 
 private inline fun <T, R : Comparable<R>> Pair<T, T>.minOf(selector: (T) -> R): R =
-    this.toList().minOf(selector)
+    toList().minOf(selector)

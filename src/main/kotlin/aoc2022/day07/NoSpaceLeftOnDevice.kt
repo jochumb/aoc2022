@@ -43,8 +43,8 @@ object NoSpaceLeftOnDevice {
         fun size(): Int = dirs.sumOf { it.size() } + files.sumOf { it.size }
         fun flatDirs(): List<Dir> = dirs + dirs.flatMap { it.flatDirs() }
 
-        fun addDir(dir: Dir): Dir = this.copy(dirs = this.dirs + dir)
-        fun addFile(file: File): Dir = this.copy(files = this.files + file)
+        fun addDir(dir: Dir): Dir = copy(dirs = dirs + dir)
+        fun addFile(file: File): Dir = copy(files = files + file)
     }
 
     private sealed interface Command
@@ -53,21 +53,21 @@ object NoSpaceLeftOnDevice {
     private object ListDir : Command
     private data class ChangeDir(val name: String) : Command
     private data class ListFile(val name: String, val size: Int) : Command {
-        val asFile: File = File(name = this.name, size = this.size)
+        val asFile: File = File(name = name, size = size)
     }
 
     private fun String.toCommand(): Command =
         when {
-            this.startsWith("$ cd ..") -> ChangeDirParent
-            this.startsWith("$ cd ")   -> ChangeDir(name = this.substringAfterLast(" "))
-            this.startsWith("$ ls")    -> ShowDir
-            this.startsWith("dir")     -> ListDir
-            else                       -> ListFile(
-                name = this.substringAfter(" "),
-                size = this.substringBefore(" ").toInt()
+            startsWith("$ cd ..") -> ChangeDirParent
+            startsWith("$ cd ")   -> ChangeDir(name = substringAfterLast(" "))
+            startsWith("$ ls")    -> ShowDir
+            startsWith("dir")     -> ListDir
+            else                  -> ListFile(
+                name = substringAfter(" "),
+                size = substringBefore(" ").toInt()
             )
         }
 
-    private fun List<Command>.next(): List<Command> = this.drop(1)
+    private fun List<Command>.next(): List<Command> = drop(1)
 }
 

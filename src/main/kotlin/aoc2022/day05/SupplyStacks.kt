@@ -63,4 +63,4 @@ object SupplyStacks {
 typealias Stack<T> = List<T>
 
 private fun <T> Stack<T>.pop(count: Int): Pair<Stack<T>, Stack<T>> =
-    this.take(count) to this.drop(count)
+    take(count) to drop(count)

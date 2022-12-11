@@ -65,17 +65,14 @@ object TreetopTreeHouse {
 
 typealias Matrix<T> = List<List<T>>
 
-private fun <T> Matrix<T>.transposed(): Matrix<T> {
-    return (0 until this.first().count()).map { x ->
-        (this.indices).map { y ->
+private fun <T> Matrix<T>.transposed(): Matrix<T> =
+    (0 until first().count()).map { x ->
+        indices.map { y ->
             this[y][x]
         }
     }
-}
 
-private fun <T> Matrix<T>.reversed(): Matrix<T> {
-    return this.map { it.reversed() }
-}
+private fun <T> Matrix<T>.reversed(): Matrix<T> = map { it.reversed() }
 
 private fun <T> Matrix<T>.isInBounds(x: Int, y: Int): Boolean =
-    y >= 0 && x >= 0 && y < this.count() && x < this.first().count()
+    y >= 0 && x >= 0 && y < count() && x < first().count()
