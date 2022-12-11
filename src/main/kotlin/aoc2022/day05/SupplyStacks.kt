@@ -56,12 +56,11 @@ object SupplyStacks {
             Step(count.toInt(), from.toInt() - 1, to.toInt() - 1)
         }
 
+    private data class Position(val stacks: List<Stack<Char>>, val steps: List<Step>)
+    private data class Step(val count: Int, val from: Int, val to: Int)
 }
 
 typealias Stack<T> = List<T>
-
-data class Position(val stacks: List<Stack<Char>>, val steps: List<Step>)
-data class Step(val count: Int, val from: Int, val to: Int)
 
 private fun <T> Stack<T>.pop(count: Int): Pair<Stack<T>, Stack<T>> =
     this.take(count) to this.drop(count)

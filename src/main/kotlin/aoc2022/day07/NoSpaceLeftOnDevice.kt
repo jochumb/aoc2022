@@ -13,12 +13,10 @@ object NoSpaceLeftOnDevice {
         return root.flatDirs().map { it.size() }.sorted().first { it >= requiredSpace }
     }
 
-    private fun parseToDirectoryTree(input: List<String>): Dir {
-        val root = Dir("/")
-        return exec(input.map { it.toCommand() }, root)
-    }
+    private fun parseToDirectoryTree(input: List<String>): Dir =
+        exec(input.map { it.toCommand() }, Dir("/"))
 
-    private fun exec(commands: List<Command>, dir: Dir): Dir {
+    private tailrec fun exec(commands: List<Command>, dir: Dir): Dir {
         if (commands.isEmpty()) return returnToRoot(dir)
 
         return when (val command = commands.first()) {
@@ -29,7 +27,7 @@ object NoSpaceLeftOnDevice {
         }
     }
 
-    private fun returnToRoot(dir: Dir): Dir =
+    private tailrec fun returnToRoot(dir: Dir): Dir =
         when (val parent = dir.parent) {
             null -> dir
             else -> returnToRoot(parent.addDir(dir))

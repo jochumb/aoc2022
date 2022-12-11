@@ -9,7 +9,9 @@ object MonkeyInTheMiddle {
 
     fun tenThousandRounds(input: String): Long {
         val monkeys = parseMonkeys(input)
-        return doNRounds(10_000, monkeys) { it % monkeys.leastCommonMultiple() }.multiplyTopTwo()
+        return doNRounds(10_000, monkeys) {
+            it % monkeys.map(Monkey::test).leastCommonMultiple()
+        }.multiplyTopTwo()
     }
 
     private fun doNRounds(n: Int, monkeys: List<Monkey>, reduceWorryLevel: (Long) -> Long): List<Int> =
@@ -79,8 +81,8 @@ object MonkeyInTheMiddle {
     private data class Monkey(val items: List<Long>, val operation: (Long) -> Long, val test: Test)
     private data class Test(val divisibleBy: Int, val ifTrue: Int, val ifFalse: Int)
 
-    private fun List<Monkey>.leastCommonMultiple(): Int =
-        map { it.test.divisibleBy }.fold(1) { a, b ->
+    private fun List<Test>.leastCommonMultiple(): Int =
+        map { it.divisibleBy }.reduce { a, b ->
             val max = if (a > b) a else b
             generateSequence(max) { it + max }.first { it % a == 0 && it % b == 0 }
         }
@@ -93,5 +95,5 @@ object MonkeyInTheMiddle {
     }
 
     private fun List<Int>.multiplyTopTwo(): Long =
-        sortedDescending().take(2).fold(1L) { acc, i -> acc * i }
+        sortedDescending().take(2).fold(1L) { a, b -> a * b }
 }

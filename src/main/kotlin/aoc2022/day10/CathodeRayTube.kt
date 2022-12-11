@@ -21,29 +21,29 @@ object CathodeRayTube {
         input: List<String>,
         x: Int = 1,
         cycle: Int = 1,
-        registerByCycle: Map<Int, Int> = mapOf()
+        xRegisterByCycle: Map<Int, Int> = mapOf()
     ): Map<Int, Int> {
         return when {
-            input.isEmpty()     -> registerByCycle
-            cycle == MAX_CYCLES -> registerByCycle + Pair(cycle, x)
+            input.isEmpty()     -> xRegisterByCycle
+            cycle == MAX_CYCLES -> xRegisterByCycle + Pair(cycle, x)
             else                -> when (val step = input.first()) {
-                "noop" -> doCycles(input.drop(1), x, cycle + 1, registerByCycle + Pair(cycle, x))
+                "noop" -> doCycles(input.drop(1), x, cycle + 1, xRegisterByCycle + Pair(cycle, x))
                 else   -> doCycles(
                     input.drop(1),
                     x + step.substringAfter(" ").toInt(),
                     cycle + 2,
-                    registerByCycle + Pair(cycle, x) + Pair(cycle + 1, x)
+                    xRegisterByCycle + Pair(cycle, x) + Pair(cycle + 1, x)
                 )
             }
         }
     }
 
-    private fun draw(xs: Map<Int, Int>): List<String> {
-        return xs.values.chunked(40).map { row ->
+    private fun draw(xRegisterByCycle: Map<Int, Int>): List<String> {
+        return xRegisterByCycle.values.chunked(40).map { row ->
             row.mapIndexed { index, value ->
-                when (index + 1) {
-                    in value..value + 2 -> "#"
-                    else                -> "."
+                when (index) {
+                    in value - 1..value + 1 -> "#"
+                    else                    -> "."
                 }
             }.joinToString("")
         }

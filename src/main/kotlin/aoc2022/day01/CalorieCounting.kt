@@ -8,8 +8,6 @@ object CalorieCounting {
     fun topThreeTotal(input: String): Int =
         caloriesPerElf(input).sortedDescending().take(3).sum()
 
-    private fun caloriesPerElf(input: String): List<Int> {
-        return input.split("\n\n")
-            .map { it.split("\n").sumOf(String::toInt) }
-    }
+    private fun caloriesPerElf(input: String): List<Int> =
+        input.split("\n\n").map { it.split("\n").sumOf(String::toInt) }
 }

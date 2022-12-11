@@ -20,8 +20,8 @@ object TreetopTreeHouse {
     private fun treesVisibleFromSides(matrix: Matrix<Tree>): Set<Tree> =
         treesVisibleFromOneSide(matrix) +
                 treesVisibleFromOneSide(matrix.reversed()) +
-                treesVisibleFromOneSide(matrix.transpose()) +
-                treesVisibleFromOneSide(matrix.transpose().reversed())
+                treesVisibleFromOneSide(matrix.transposed()) +
+                treesVisibleFromOneSide(matrix.transposed().reversed())
 
     private fun treesVisibleFromOneSide(matrix: Matrix<Tree>): Set<Tree> {
         data class Acc(val highestTree: Int = -1, val visibleTrees: Set<Tree> = emptySet())
@@ -65,7 +65,7 @@ object TreetopTreeHouse {
 
 typealias Matrix<T> = List<List<T>>
 
-private fun <T> Matrix<T>.transpose(): Matrix<T> {
+private fun <T> Matrix<T>.transposed(): Matrix<T> {
     return (0 until this.first().count()).map { x ->
         (this.indices).map { y ->
             this[y][x]
