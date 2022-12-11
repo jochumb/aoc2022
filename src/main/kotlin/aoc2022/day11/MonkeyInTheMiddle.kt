@@ -87,12 +87,8 @@ object MonkeyInTheMiddle {
             generateSequence(max) { it + max }.first { it % a == 0 && it % b == 0 }
         }
 
-    private fun List<Int>.increment(index: Int): List<Int> = mapIndexed { i, n ->
-        when (i) {
-            index -> n + 1
-            else  -> n
-        }
-    }
+    private fun List<Int>.increment(index: Int): List<Int> =
+        take(index) + get(index).inc() + drop(index + 1)
 
     private fun List<Int>.multiplyTopTwo(): Long =
         sortedDescending().take(2).fold(1L) { a, b -> a * b }
