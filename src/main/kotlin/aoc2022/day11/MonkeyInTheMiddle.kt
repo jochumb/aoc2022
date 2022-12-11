@@ -15,8 +15,8 @@ object MonkeyInTheMiddle {
     }
 
     private fun doNRounds(n: Int, monkeys: List<Monkey>, reduceWorryLevel: (Long) -> Long): List<Int> =
-        (0 until n).fold(Pair(monkeys, List(monkeys.count()) { 0 })) { acc, _ ->
-            doRound(0, acc.first, acc.second, reduceWorryLevel)
+        (0 until n).fold(Pair(monkeys, List(monkeys.count()) { 0 })) { (monkeys, itemsProcessed), _ ->
+            doRound(0, monkeys, itemsProcessed, reduceWorryLevel)
         }.second
 
     private tailrec fun doRound(

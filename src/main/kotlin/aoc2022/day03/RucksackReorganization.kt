@@ -14,7 +14,7 @@ object RucksackReorganization {
     }
 
     private fun commonItem(strings: List<String>): Char =
-        strings.map(String::toSet).reduce { acc, chars -> chars intersect acc }.first()
+        strings.map(String::toSet).reduce(Set<Char>::intersect).first()
 
     private fun toPriority(item: Char): Int =
         when {

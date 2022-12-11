@@ -5,7 +5,6 @@ import aoc2022.utils.Input
 import com.github.ajalt.colormath.model.SRGB
 import com.github.ajalt.mordant.rendering.TextColors.*
 import com.github.ajalt.mordant.rendering.TextStyle
-import com.github.ajalt.mordant.terminal.Terminal
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 
@@ -54,19 +53,27 @@ class Day10Spec : DescribeSpec({
 })
 
 private fun prettyPrint(lines: List<String>) {
-    val brightOrange = TextStyle(SRGB(1.0F, 0.65F, 0.0F, 1.0F))
     val colors =
-        listOf(brightRed, brightOrange, brightYellow, brightGreen, brightCyan, brightBlue, brightMagenta, brightWhite)
-    val t = Terminal()
+        listOf(
+            brightRed,
+            TextStyle(SRGB(1.0F, 0.65F, 0.0F, 1.0F)),
+            brightYellow,
+            brightGreen,
+            brightCyan,
+            brightBlue,
+            brightMagenta,
+            brightWhite
+        ).map { (it on it)("\u2588") }
+    val space = (black on black)(" ")
+
     lines.forEach { line ->
-        print((black on black)(" "))
+        print(space)
         line.toList().forEachIndexed { index, char ->
-            val color = colors[index / 5]
             when (char) {
-                '#' -> t.print((color on color)("\u2588"))
-                '.' -> t.print((black on black)(" "))
+                '#' -> print(colors[index / 5])
+                '.' -> print(space)
             }
         }
-        t.println()
+        println()
     }
 }
