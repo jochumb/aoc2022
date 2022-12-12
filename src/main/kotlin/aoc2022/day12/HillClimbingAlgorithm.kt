@@ -13,7 +13,7 @@ object HillClimbingAlgorithm {
         val nodes: Map<Point, Node<Point>> =
             pointsMap.map { e -> toNode(e.key, e.value, pointsMap) }.associateBy { it.id }
 
-        return AStar(nodes).shortestPath(nodes[starts.first()]!!, nodes[end]!!).count() - 1
+        return AStar.shortestPath(nodes, starts.first(), end).count() - 1
     }
 
     suspend fun shortestPathFromLowestLevel(input: List<String>): Int {
@@ -22,7 +22,7 @@ object HillClimbingAlgorithm {
             pointsMap.map { e -> toNode(e.key, e.value, pointsMap) }.associateBy { it.id }
 
         return starts.parTraverse { start ->
-            AStar(nodes).shortestPath(nodes[start]!!, nodes[end]!!)
+            AStar.shortestPath(nodes, start, end)
         }.filter { it.count() > 1 }.minOf { it.count() - 1 }
     }
 
@@ -31,7 +31,10 @@ object HillClimbingAlgorithm {
         startToken: Char = 'S'
     ): Triple<Map<Point, Int>, Set<Point>, Point> {
         val pointsMap: Map<Point, Pair<Int, Char>> =
-            input.mapIndexed { y, xs -> xs.mapIndexed { x, char -> createPoint(x, y, char) } }.flatten().toMap()
+            input.mapIndexed { y, xs ->
+                xs.mapIndexed { x, char -> createPoint(x, y, char) }
+            }.flatten().toMap()
+
         val starts: Set<Point> = pointsMap.filter { e -> e.value.second == startToken }.keys
         val end: Point = pointsMap.filter { e -> e.value.second == 'E' }.keys.first()
 
@@ -52,8 +55,11 @@ object HillClimbingAlgorithm {
             point.copy(x = point.x + 1), point.copy(x = point.x - 1),
             point.copy(y = point.y + 1), point.copy(y = point.y - 1)
         ).filter { it.x >= 0 && it.y >= 0 }
-        val neighbours = neighbourPoints.map { Pair(it, pointsMap[it]) }
-            .filter { (it.second ?: 0) in 1..value + 1 }.map { Edge(to = it.first) }
+
+        val neighbours = neighbourPoints
+            .map { Pair(it, pointsMap[it]) }
+            .filter { (it.second ?: 0) in 1..value + 1 }
+            .map { Edge(to = it.first) }
 
         return Node(point, neighbours) { other ->
             max(
