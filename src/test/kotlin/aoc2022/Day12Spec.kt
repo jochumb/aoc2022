@@ -5,7 +5,6 @@ import aoc2022.utils.Input
 import aoc2022.utils.asInput
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
-import kotlin.time.Duration.Companion.seconds
 
 class Day12Spec : DescribeSpec({
 
@@ -34,7 +33,7 @@ class Day12Spec : DescribeSpec({
             HillClimbingAlgorithm.shortestPathFromLowestLevel(testInput.asList()) shouldBe 29
         }
 
-        it("actual input").config(timeout = 5.seconds) {
+        it("actual input") {
             HillClimbingAlgorithm.shortestPathFromLowestLevel(actualInput.asList()) shouldBe 522
         }
     }

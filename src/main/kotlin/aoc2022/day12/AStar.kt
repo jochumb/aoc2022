@@ -1,7 +1,5 @@
 package aoc2022.day12
 
-import java.util.*
-
 data class Node<T>(
     val id: T,
     val neighbours: List<Edge<T>>,
@@ -12,54 +10,86 @@ data class Edge<T>(val to: T, val cost: Int = 1)
 
 class AStar<T>(private val nodes: Map<T, Node<T>>) {
 
-    fun shortestPath(start: Node<T>, end: Node<T>): List<Node<T>> {
-        val costs: MutableMap<T, Int> = mutableMapOf()
-        val moves: MutableMap<T, Int> = mutableMapOf()
-        val parents: MutableMap<T, Node<T>> = mutableMapOf()
+    private data class State<T>(
+        val unprocessed: Set<Pair<Node<T>, Int>>,
+        val processed: Set<T> = emptySet(),
+        val moves: Map<T, Int> = emptyMap(),
+        val parents: Map<T, Node<T>> = emptyMap()
+    )
 
-        val comparator: Comparator<Node<T>> = Comparator { node1, node2 ->
-            costs.getOrDefault(node1.id, Int.MAX_VALUE) - costs.getOrDefault(node2.id, Int.MAX_VALUE)
-        }
+    private data class Delta<T>(
+        val addUnprocessed: Pair<Node<T>, Int>? = null,
+        val removeProcessed: T? = null,
+        val updateMoves: Pair<T, Int>? = null,
+        val updateParents: Pair<T, Node<T>>? = null
+    )
 
-        val processed: PriorityQueue<Node<T>> = PriorityQueue(comparator)
-        val unprocessed: PriorityQueue<Node<T>> = PriorityQueue(comparator)
+    fun shortestPath(start: Node<T>, target: Node<T>): List<Node<T>> {
+        val startState = State(
+            unprocessed = setOf(
+                Pair(
+                    start,
+                    start.heuristicFunction(target)
+                )
+            ),
+            moves = mapOf(start.id to 0)
+        )
+        val state = untilTargetNodeIsFound(startState, target)
 
-        moves[start.id] = 0
-        costs[start.id] = start.heuristicFunction(end)
-        unprocessed.add(start)
+        return generateSequence(target) { state.parents[it.id] }.toList().reversed()
+    }
 
-        while (!unprocessed.isEmpty()) {
-            val node: Node<T> = unprocessed.peek()
-            if (node.id == end.id) {
-                break
+    private tailrec fun untilTargetNodeIsFound(state: State<T>, end: Node<T>): State<T> {
+        if (state.unprocessed.isEmpty()) return state
+
+        val priority = state.unprocessed.sortedWith { p1, p2 -> p1.second - p2.second }
+        val (node, _) = priority.first()
+
+        if (node.id == end.id) return state
+
+        val updated = node.neighbours.map { edge ->
+            val neighbour = nodes[edge.to]!!
+            val neighbourMove = state.moves.getOrDefault(node.id, Int.MAX_VALUE) + edge.cost
+
+            if (!state.unprocessed.map { it.first.id }
+                    .contains(neighbour.id) && !state.processed.contains(neighbour.id)) {
+                return@map Delta(
+                    addUnprocessed = neighbour to neighbourMove + neighbour.heuristicFunction(end),
+                    updateMoves = neighbour.id to neighbourMove,
+                    updateParents = neighbour.id to node
+                )
             }
 
-            for (edge in node.neighbours) {
-                val next = nodes[edge.to]!!
-                val nextMove = moves.getOrDefault(node.id, Int.MAX_VALUE) + edge.cost
-                if (!unprocessed.contains(next) && !processed.contains(next)) {
-                    parents[next.id] = node
-                    moves[next.id] = nextMove
-                    costs[next.id] = nextMove + next.heuristicFunction(end)
-                    unprocessed.add(next)
-                } else {
-                    if (nextMove < moves.getOrDefault(next.id, Int.MAX_VALUE)) {
-                        parents[next.id] = node
-                        moves[next.id] = nextMove
-                        costs[next.id] = nextMove + next.heuristicFunction(end)
-                        if (processed.contains(next)) {
-                            processed.remove(next)
-                            unprocessed.add(next)
-                        }
-                    }
+            if (neighbourMove < state.moves.getOrDefault(neighbour.id, Int.MAX_VALUE)) {
+                val delta = Delta(
+                    updateMoves = neighbour.id to neighbourMove,
+                    updateParents = neighbour.id to node
+                )
+                if (state.processed.contains(neighbour.id)) {
+                    return@map delta.copy(
+                        addUnprocessed = neighbour to neighbourMove + neighbour.heuristicFunction(end),
+                        removeProcessed = neighbour.id
+                    )
                 }
+                return@map delta
             }
 
-            unprocessed.remove(node)
-            processed.add(node)
+            Delta()
+        }.fold(state) { intermediate: State<T>, delta: Delta<T> ->
+            State(
+                unprocessed = intermediate.unprocessed + (delta.addUnprocessed?.let { setOf(it) }.orEmpty()),
+                processed = intermediate.processed.filterNot { it == delta.removeProcessed }.toSet(),
+                moves = intermediate.moves + (delta.updateMoves?.let { mapOf(it) }.orEmpty()),
+                parents = intermediate.parents + (delta.updateParents?.let { mapOf(it) }.orEmpty()),
+            )
         }
 
-        return generateSequence(end) { parents[it.id] }.toList().reversed()
+        return untilTargetNodeIsFound(
+            updated.copy(
+                unprocessed = updated.unprocessed.filterNot { it.first.id == node.id }.toSet(),
+                processed = updated.processed + node.id
+            ), end
+        )
     }
 
 }
