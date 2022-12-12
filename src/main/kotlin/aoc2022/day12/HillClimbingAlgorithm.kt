@@ -51,17 +51,17 @@ object HillClimbingAlgorithm {
     }
 
     private fun toNode(point: Point, value: Int, pointsMap: Map<Point, Int>): Node<Point> {
-        val neighbourPoints = listOf(
+        val neighbours = listOf(
             point.copy(x = point.x + 1), point.copy(x = point.x - 1),
             point.copy(y = point.y + 1), point.copy(y = point.y - 1)
         ).filter { it.x >= 0 && it.y >= 0 }
 
-        val neighbours = neighbourPoints
+        val edges = neighbours
             .map { Pair(it, pointsMap[it]) }
             .filter { (it.second ?: 0) in 1..value + 1 }
             .map { Edge(to = it.first) }
 
-        return Node(point, neighbours) { other ->
+        return Node(point, edges) { other ->
             max(
                 abs(point.x - other.id.x) + abs(point.y - other.id.y),
                 26 - value

@@ -4,7 +4,7 @@ import java.util.*
 
 data class Node<Id>(
     val id: Id,
-    val neighbours: List<Edge<Id>>,
+    val edges: List<Edge<Id>>,
     val heuristicFunction: (Node<Id>) -> Int
 )
 
@@ -35,7 +35,7 @@ class AStar<Id> private constructor(private val nodes: Map<Id, Node<Id>>, startI
             val node: Node<Id> = queue.peek()
             if (node.id == target) break
 
-            processNeighboursFor(node)
+            processEdgesForNode(node)
 
             queue.remove(node)
             processed.add(node.id)
@@ -44,24 +44,24 @@ class AStar<Id> private constructor(private val nodes: Map<Id, Node<Id>>, startI
         return backtracePath()
     }
 
-    private fun processNeighboursFor(node: Node<Id>) =
-        node.neighbours.forEach { edge -> processNeighbourFor(edge, node) }
+    private fun processEdgesForNode(node: Node<Id>) =
+        node.edges.forEach { edge -> processEdgeForNode(edge, node) }
 
-    private fun processNeighbourFor(edge: Edge<Id>, node: Node<Id>) {
-        val neighbour = nodes[edge.to]!!
-        val moveToNeighbour = moves.get(node) + edge.cost
+    private fun processEdgeForNode(edge: Edge<Id>, parent: Node<Id>) {
+        val node = nodes[edge.to]!!
+        val movesToNode = moves.get(parent) + edge.cost
 
         when {
-            notSeen(neighbour)                     -> {
-                updateState(node, neighbour, moveToNeighbour)
-                queue.add(neighbour)
+            notSeen(node)                 -> {
+                updateState(node, parent, movesToNode)
+                queue.add(node)
             }
 
-            moveToNeighbour < moves.get(neighbour) -> {
-                updateState(node, neighbour, moveToNeighbour)
-                if (processed.contains(neighbour.id)) {
-                    processed.remove(neighbour.id)
-                    queue.add(neighbour)
+            movesToNode < moves.get(node) -> {
+                updateState(node, parent, movesToNode)
+                if (processed.contains(node.id)) {
+                    processed.remove(node.id)
+                    queue.add(node)
                 }
             }
         }
@@ -71,12 +71,12 @@ class AStar<Id> private constructor(private val nodes: Map<Id, Node<Id>>, startI
 
     private fun updateState(
         node: Node<Id>,
-        neighbour: Node<Id>,
-        moveToNeighbour: Int
+        parent: Node<Id>,
+        movesToNode: Int
     ) {
-        parents[neighbour.id] = node
-        moves[neighbour.id] = moveToNeighbour
-        costs[neighbour.id] = moveToNeighbour + neighbour.heuristicFunction(target)
+        parents[node.id] = parent
+        moves[node.id] = movesToNode
+        costs[node.id] = movesToNode + node.heuristicFunction(target)
     }
 
     private fun backtracePath(): List<Node<Id>> = generateSequence(target) { parents[it.id] }.toList().reversed()
