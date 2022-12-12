@@ -21,7 +21,7 @@ class AStar<T>(private val nodes: Map<T, Node<T>>) {
             costs.getOrDefault(node1.id, Int.MAX_VALUE) - costs.getOrDefault(node2.id, Int.MAX_VALUE)
         }
 
-        val processed: PriorityQueue<Node<T>> = PriorityQueue(comparator)
+        val processed: MutableSet<T> = mutableSetOf()
         val unprocessed: PriorityQueue<Node<T>> = PriorityQueue(comparator)
 
         moves[start.id] = 0
@@ -37,7 +37,7 @@ class AStar<T>(private val nodes: Map<T, Node<T>>) {
             for (edge in node.neighbours) {
                 val next = nodes[edge.to]!!
                 val nextMove = moves.getOrDefault(node.id, Int.MAX_VALUE) + edge.cost
-                if (!unprocessed.contains(next) && !processed.contains(next)) {
+                if (!unprocessed.contains(next) && !processed.contains(next.id)) {
                     parents[next.id] = node
                     moves[next.id] = nextMove
                     costs[next.id] = nextMove + next.heuristicFunction(end)
@@ -47,8 +47,8 @@ class AStar<T>(private val nodes: Map<T, Node<T>>) {
                         parents[next.id] = node
                         moves[next.id] = nextMove
                         costs[next.id] = nextMove + next.heuristicFunction(end)
-                        if (processed.contains(next)) {
-                            processed.remove(next)
+                        if (processed.contains(next.id)) {
+                            processed.remove(next.id)
                             unprocessed.add(next)
                         }
                     }
@@ -56,7 +56,7 @@ class AStar<T>(private val nodes: Map<T, Node<T>>) {
             }
 
             unprocessed.remove(node)
-            processed.add(node)
+            processed.add(node.id)
         }
 
         return generateSequence(end) { parents[it.id] }.toList().reversed()
