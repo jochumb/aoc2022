@@ -32,7 +32,7 @@ object HillClimbingAlgorithm {
     ): Triple<Map<Point, Int>, Set<Point>, Point> {
         val pointsMap: Map<Point, Pair<Int, Char>> =
             input.mapIndexed { y, xs ->
-                xs.mapIndexed { x, char -> createPoint(x, y, char) }
+                xs.mapIndexed { x, char -> createPointWithValue(x, y, char) }
             }.flatten().toMap()
 
         val starts: Set<Point> = pointsMap.filter { e -> e.value.second == startToken }.keys
@@ -41,7 +41,7 @@ object HillClimbingAlgorithm {
         return Triple(pointsMap.mapValues { it.value.first }, starts, end)
     }
 
-    private fun createPoint(x: Int, y: Int, char: Char): Pair<Point, Pair<Int, Char>> {
+    private fun createPointWithValue(x: Int, y: Int, char: Char): Pair<Point, Pair<Int, Char>> {
         val height = when (char) {
             'S'  -> 1
             'E'  -> 26
@@ -51,17 +51,17 @@ object HillClimbingAlgorithm {
     }
 
     private fun toNode(point: Point, value: Int, pointsMap: Map<Point, Int>): Node<Point> {
-        val neighbourPoints = listOf(
+        val neighbours = listOf(
             point.copy(x = point.x + 1), point.copy(x = point.x - 1),
             point.copy(y = point.y + 1), point.copy(y = point.y - 1)
         ).filter { it.x >= 0 && it.y >= 0 }
 
-        val neighbours = neighbourPoints
+        val edges = neighbours
             .map { Pair(it, pointsMap[it]) }
             .filter { (it.second ?: 0) in 1..value + 1 }
             .map { Edge(to = it.first) }
 
-        return Node(point, neighbours) { other ->
+        return Node(point, edges) { other ->
             max(
                 abs(point.x - other.id.x) + abs(point.y - other.id.y),
                 26 - value
