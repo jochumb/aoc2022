@@ -2,65 +2,86 @@ package aoc2022.day12
 
 import java.util.*
 
-data class Node<T>(
-    val id: T,
-    val neighbours: List<Edge<T>>,
-    val heuristicFunction: (Node<T>) -> Int
+data class Node<Id>(
+    val id: Id,
+    val neighbours: List<Edge<Id>>,
+    val heuristicFunction: (Node<Id>) -> Int
 )
 
-data class Edge<T>(val to: T, val cost: Int = 1)
+data class Edge<Id>(val to: Id, val cost: Int = 1)
 
-class AStar<T>(private val nodes: Map<T, Node<T>>) {
+class AStar<Id> private constructor(private val nodes: Map<Id, Node<Id>>, startId: Id, targetId: Id) {
+    companion object {
+        fun <Id> shortestPath(nodes: Map<Id, Node<Id>>, start: Id, target: Id): List<Node<Id>> =
+            AStar(nodes, start, target).shortestPath()
+    }
 
-    fun shortestPath(start: Node<T>, end: Node<T>): List<Node<T>> {
-        val costs: MutableMap<T, Int> = mutableMapOf()
-        val moves: MutableMap<T, Int> = mutableMapOf()
-        val parents: MutableMap<T, Node<T>> = mutableMapOf()
+    private val start = nodes[startId]!!
+    private val target = nodes[targetId]!!
 
-        val comparator: Comparator<Node<T>> = Comparator { node1, node2 ->
-            costs.getOrDefault(node1.id, Int.MAX_VALUE) - costs.getOrDefault(node2.id, Int.MAX_VALUE)
-        }
+    private val costs: MutableMap<Id, Int> = mutableMapOf(start.id to start.heuristicFunction(target))
+    private val moves: MutableMap<Id, Int> = mutableMapOf(start.id to 0)
+    private val parents: MutableMap<Id, Node<Id>> = mutableMapOf()
+    private val processed: MutableSet<Id> = mutableSetOf()
 
-        val processed: MutableSet<T> = mutableSetOf()
-        val unprocessed: PriorityQueue<Node<T>> = PriorityQueue(comparator)
+    private val queue: PriorityQueue<Node<Id>> = PriorityQueue { node1, node2 ->
+        costs.get(node1) - costs.get(node2)
+    }
 
-        moves[start.id] = 0
-        costs[start.id] = start.heuristicFunction(end)
-        unprocessed.add(start)
+    private fun shortestPath(): List<Node<Id>> {
+        queue.add(start)
 
-        while (!unprocessed.isEmpty()) {
-            val node: Node<T> = unprocessed.peek()
-            if (node.id == end.id) {
-                break
-            }
+        while (queue.isNotEmpty()) {
+            val node: Node<Id> = queue.peek()
+            if (node.id == target) break
 
-            for (edge in node.neighbours) {
-                val next = nodes[edge.to]!!
-                val nextMove = moves.getOrDefault(node.id, Int.MAX_VALUE) + edge.cost
-                if (!unprocessed.contains(next) && !processed.contains(next.id)) {
-                    parents[next.id] = node
-                    moves[next.id] = nextMove
-                    costs[next.id] = nextMove + next.heuristicFunction(end)
-                    unprocessed.add(next)
-                } else {
-                    if (nextMove < moves.getOrDefault(next.id, Int.MAX_VALUE)) {
-                        parents[next.id] = node
-                        moves[next.id] = nextMove
-                        costs[next.id] = nextMove + next.heuristicFunction(end)
-                        if (processed.contains(next.id)) {
-                            processed.remove(next.id)
-                            unprocessed.add(next)
-                        }
-                    }
-                }
-            }
+            processNeighboursFor(node)
 
-            unprocessed.remove(node)
+            queue.remove(node)
             processed.add(node.id)
         }
 
-        return generateSequence(end) { parents[it.id] }.toList().reversed()
+        return backtracePath()
     }
+
+    private fun processNeighboursFor(node: Node<Id>) =
+        node.neighbours.forEach { edge -> processNeighbourFor(edge, node) }
+
+    private fun processNeighbourFor(edge: Edge<Id>, node: Node<Id>) {
+        val neighbour = nodes[edge.to]!!
+        val moveToNeighbour = moves.get(node) + edge.cost
+
+        when {
+            notSeen(neighbour)                     -> {
+                updateState(node, neighbour, moveToNeighbour)
+                queue.add(neighbour)
+            }
+
+            moveToNeighbour < moves.get(neighbour) -> {
+                updateState(node, neighbour, moveToNeighbour)
+                if (processed.contains(neighbour.id)) {
+                    processed.remove(neighbour.id)
+                    queue.add(neighbour)
+                }
+            }
+        }
+    }
+
+    private fun notSeen(node: Node<Id>): Boolean = !queue.contains(node) && !processed.contains(node.id)
+
+    private fun updateState(
+        node: Node<Id>,
+        neighbour: Node<Id>,
+        moveToNeighbour: Int
+    ) {
+        parents[neighbour.id] = node
+        moves[neighbour.id] = moveToNeighbour
+        costs[neighbour.id] = moveToNeighbour + neighbour.heuristicFunction(target)
+    }
+
+    private fun backtracePath(): List<Node<Id>> = generateSequence(target) { parents[it.id] }.toList().reversed()
+
+    private fun MutableMap<Id, Int>.get(node: Node<Id>): Int = getOrDefault(node.id, Int.MAX_VALUE)
 
 }
 
