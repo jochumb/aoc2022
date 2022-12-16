@@ -65,9 +65,7 @@ object DistressSignal {
     private fun nextListValue(section: List<Char>): List<ListOrInt> {
         val listEndIndex = indexOnBalancedOpenAndClose(section.drop(1))
         return listOf(createListValue(section.subList(0, listEndIndex + 1))) +
-                fillListValue(
-                    section.subList(listEndIndex + 1, section.lastIndex + 1)
-                )
+                fillListValue(section.subList(listEndIndex + 1, section.lastIndex + 1))
     }
 
     private fun indexOnBalancedOpenAndClose(chars: List<Char>, tally: Int = 1, index: Int = 1): Int =

@@ -12,9 +12,9 @@ object RegolithReservoir {
 
     fun dropSandUntilSourceIsBlocked(input: List<String>): Int {
         val rocks = buildRockStructure(input)
-        val pyramid = sandPyramid(rocks.maxOf { it.y } + 1)
-        val blocked = findBlocked(pyramid, rocks)
-        return (pyramid - blocked.toSet()).count()
+        val pyramid = createPyramid(rocks.maxOf { it.y } + 1)
+        val unreachable = findUnreachableBySand(pyramid, rocks)
+        return (pyramid - unreachable.toSet()).count()
     }
 
     private tailrec fun dropSand(
@@ -32,19 +32,19 @@ object RegolithReservoir {
         }
     }
 
-    private fun sandPyramid(floor: Int): List<Point> =
+    private fun createPyramid(floor: Int): List<Point> =
         (0..floor).flatMap { y ->
             (500 - y..500 + y).map { x -> Point(x, y) }
         }
 
-    private tailrec fun findBlocked(pyramid: List<Point>, blocked: List<Point>): List<Point> {
+    private tailrec fun findUnreachableBySand(pyramid: List<Point>, blocked: List<Point>): List<Point> {
         if (pyramid.isEmpty()) return blocked
 
         val point = pyramid.first()
         return if (blocked.containsAll(listOf(point, point.left(), point.right()))) {
-            findBlocked(pyramid.drop(1), blocked + point.down())
+            findUnreachableBySand(pyramid.drop(1), blocked + point.down())
         } else {
-            findBlocked(pyramid.drop(1), blocked)
+            findUnreachableBySand(pyramid.drop(1), blocked)
         }
     }
 

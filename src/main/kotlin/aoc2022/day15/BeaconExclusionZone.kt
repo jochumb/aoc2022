@@ -16,7 +16,9 @@ object BeaconExclusionZone {
 
     fun findUncoveredBeacon(input: List<String>, maxGridSize: Int): Long {
         val zones = input.map { toZone(it) }
-        val beacon = zones.asSequence().flatMap { it.justOutside(maxGridSize) }.first { !it.isInAZone(zones) }
+        val beacon = zones.asSequence()
+            .flatMap { it.pointsBorderingOnZoneWithin(maxGridSize) }
+            .first { !it.isInAZone(zones) }
         return beacon.x * 4000000L + beacon.y
     }
 
@@ -40,7 +42,7 @@ object BeaconExclusionZone {
         fun isInZone(point: Point): Boolean =
             sensor.manhattanDistance(point) <= radius
 
-        fun justOutside(maxGridSize: Int): List<Point> =
+        fun pointsBorderingOnZoneWithin(maxGridSize: Int): List<Point> =
             boundaryPointsFrom(sensor.x + radius + 1, maxGridSize) +
                     boundaryPointsFrom(sensor.x - radius - 1, maxGridSize)
 
